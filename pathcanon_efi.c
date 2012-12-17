@@ -46,7 +46,7 @@ dc_str(struct dir_component * dir)
  * shorter than, or the same length as the input path).
  *
  * return NULL if the path is invalid,
- * else return the input buffer.
+ * else return the canonicalized input buffer.
  */
 wchar_t *
 canonicalize_efi_path(wchar_t * volpath, int debug)
@@ -68,7 +68,7 @@ canonicalize_efi_path(wchar_t * volpath, int debug)
         path++;
 
     if (path[0] == L'\0')
-        return NULL;        // no directory path: invalid
+        return volpath;
 
     //
     // estimate the number of directory components in path
@@ -183,6 +183,7 @@ struct tests {
     wchar_t * expected;
     int       debug;
 } Tests[] = {
+    {L"", L"", 1},
     {L"\\", L"\\", 0},
     {L"\\\\", L"\\", 0},
     {L"\\\\\\", L"\\", 0},
