@@ -27,8 +27,8 @@ dc_str(struct dir_component * dir)
 {
     int len = dir->len;
 
-    if (len > sizeof(lbuf)-1)
-        len = sizeof(lbuf)-1;
+    if (len > sizeof(lbuf)/sizeof(wchar_t)-1)
+        len = sizeof(lbuf)/sizeof(wchar_t)-1;
 
     if (len)
         wcsncpy(lbuf, dir->dir, len);
@@ -80,13 +80,13 @@ canonicalize_efi_path(wchar_t * volpath, int debug)
             n_dirs++;
 
     if (debug) {
-        printf("========\n");
-        printf("in: %ls (%d)\n", path, n_dirs);
+        wprintf(L"========\n");
+        wprintf(L"in: %ls (%d)\n", path, n_dirs);
     }
 
     dirs = malloc(sizeof(struct dir_component) * n_dirs);
     if (dirs == NULL) {
-        printf("canonicalize_path: out of memory\n");
+        wprintf(L"canonicalize_path: out of memory\n");
         return NULL;
     }
 
@@ -116,7 +116,7 @@ canonicalize_efi_path(wchar_t * volpath, int debug)
 
     if (debug) {
         for (i = 0; i < n_dirs; i++)
-            printf(" %2d %ls\n", dirs[i].len, dc_str(&dirs[i]));
+            wprintf(L" %2d %ls\n", dirs[i].len, dc_str(&dirs[i]));
     }
 
     //
@@ -147,9 +147,9 @@ canonicalize_efi_path(wchar_t * volpath, int debug)
     }
 
     if (debug) {
-        printf("----\n");
+        wprintf(L"----\n");
         for (i = 0; i < n_dirs; i++)
-            printf(" %2d %ls\n", dirs[i].len, dc_str(&dirs[i]));
+            wprintf(L" %2d %ls\n", dirs[i].len, dc_str(&dirs[i]));
     }
 
     //
@@ -259,20 +259,20 @@ main(int ac, char * av[])
         int len = (strlen(av[1]) + 1) * sizeof(wchar_t);
         buf = malloc(len);
         mbstowcs(buf, av[1], len);
-        printf("path: %ls\n", canonicalize_efi_path(buf, 1));
+        wprintf(L"path: %ls\n", canonicalize_efi_path(buf, 1));
         free(buf);
     } else {
         for (tp = Tests; tp->test; tp++) {
             buf = wcsdup(tp->test);
             result = canonicalize_efi_path(buf, tp->debug);
-            printf("%ls -> %ls\n", tp->test, result);
+            wprintf(L"%ls -> %ls\n", tp->test, result);
             if (result == NULL  &&  tp->expected == NULL) {
                 free(buf);
                 continue;
             }
             if ((result == NULL && tp->expected != NULL)
             ||  wcscmp(result, tp->expected)) {
-                printf("failed: %ls, expected %ls, got %ls\n", tp->test,
+                wprintf(L"failed: %ls, expected %ls, got %ls\n", tp->test,
                        tp->expected, result);
                 result = canonicalize_efi_path(buf, 1);
             }
